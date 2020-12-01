@@ -1,1 +1,1 @@
-export type ExerciseModuleFunc = (input: string) => Promise<string>;
+export type ExerciseModuleFunc = (input: string) => Promise<any>;
