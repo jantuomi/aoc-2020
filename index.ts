@@ -11,7 +11,9 @@ const inputText = inputBuffer.toString();
 
 import(modulePath).then(m => {
   const defaultFunc = m.default as ExerciseModuleFunc;
-  defaultFunc(inputText);
+  const result = defaultFunc(inputText);
+  console.log("=== RESULT ===");
+  console.log(result);
 }).catch(err => {
   console.error(err);
 });

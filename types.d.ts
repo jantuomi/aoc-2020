@@ -1,1 +1,1 @@
-export type ExerciseModuleFunc = (input: string) => void;
+export type ExerciseModuleFunc = (input: string) => string;
