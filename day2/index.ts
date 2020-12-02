@@ -73,7 +73,7 @@ const day2: ExerciseModuleFunc = async (input: string) => {
     count()
   ).toPromise();
 
-  return [await prom1, await prom2];
+  return Promise.all([prom1, prom2]);
 }
 
 export default day2;
