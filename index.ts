@@ -1,4 +1,6 @@
 import * as fs from "fs";
+const util = require('util')
+
 import { ExerciseModuleFunc } from "./types";
 const args = process.argv;
 
@@ -15,7 +17,7 @@ import(modulePath).then(m => {
 })
 .then(result => {
   console.log("=== RESULT ===");
-  console.log(result);
+  console.log(util.inspect(result, { showHidden: false, depth: null }))
 })
 .catch(err => {
   console.error(err);
