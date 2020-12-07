@@ -12,9 +12,15 @@ interface Rule {
   children: RuleChild[];
 }
 
-interface TreeNode {
+interface TreeNode1 {
   type: string;
-  children: TreeNode[];
+  children: TreeNode1[];
+}
+
+interface TreeNode2 {
+  type: string;
+  children: TreeNode2[];
+  num: number;
 }
 
 const union = <T extends unknown>(...sets: Set<T>[]): Set<T> => {
@@ -54,23 +60,21 @@ const rowToRule = (row: string): Rule => {
   }
 };
 
-const constructNode = (rules: Rule[], type: string): TreeNode => {
-  const children = rules
+const buildTree1 = (rules: Rule[], type: string): TreeNode1 => {
+  const initial: TreeNode1 = { type, children: [] };
+
+  const node: TreeNode1 = rules
     .filter(rule => rule.children.some(child => child.type === type))
-    .reduce((acc: TreeNode, rule) => {
-      const newChild = constructNode(rules, rule.type);
+    .reduce((acc: TreeNode1, ruleWithNum) => {
+      const newChild = buildTree1(rules, ruleWithNum.type);
       acc.children.push(newChild);
       return acc;
-    }, { type, children: [] });
+    }, initial);
 
-  return children;
+  return node;
 }
 
-const buildTree = (rules: Rule[], rootType: string) => {
-  return constructNode(rules, rootType);
-}
-
-const uniqueNonRootNodes = (tree: TreeNode): Set<string> => {
+const uniqueNonRootNodes = (tree: TreeNode1): Set<string> => {
   let set = new Set<string>();
 
   for (let child of tree.children) {
@@ -83,6 +87,24 @@ const uniqueNonRootNodes = (tree: TreeNode): Set<string> => {
   return set;
 }
 
+const buildTree2 = (rules: Rule[], type: string): TreeNode2 => {
+  const rule = rules.find(rule => rule.type === type);
+
+  const node: TreeNode2 = {
+    type: rule.type,
+    children: [],
+    num: 0
+  };
+
+  for (let child of rule.children) {
+    const childNode = buildTree2(rules, child.type);
+    node.children.push(childNode);
+    node.num += child.num + child.num * childNode.num;
+  }
+
+  return node;
+}
+
 const day7: ExerciseModuleFunc = async (input: string) => {
   const rows = input.split("\n");
 
@@ -90,15 +112,20 @@ const day7: ExerciseModuleFunc = async (input: string) => {
     concatAll(),
     map(rowToRule),
     toArray(),
-    map(rules => buildTree(rules, "shiny gold")),
+    map(rules => buildTree1(rules, "shiny gold")),
     map(tree => uniqueNonRootNodes(tree)),
     map(set => set.size)
   ).toPromise();
 
-  // const prom2 = of(rows).pipe(
-  // ).toPromise();
+  const prom2 = of(rows).pipe(
+    concatAll(),
+    map(rowToRule),
+    toArray(),
+    map(rules => buildTree2(rules, "shiny gold")),
+    map(tree => tree.num)
+  ).toPromise();
 
-  return Promise.all([prom1]);
+  return Promise.all([prom1, prom2]);
 }
 
 export default day7;
